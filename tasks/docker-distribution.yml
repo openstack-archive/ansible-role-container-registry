@@ -1,0 +1,30 @@
+---
+# tasks file for ansible-role-container-registry
+
+# Required to have a v2 registry
+- name: ensure the Docker Registry is absent
+  yum:
+    name: docker-registry
+    state: absent
+
+- name: install the latest version of Docker Distribution
+  yum:
+    name: docker-distribution
+    state: latest
+
+- name: install the latest version of openstack-kolla
+  yum:
+    name: openstack-kolla
+    state: latest
+  when: enable_container_images_build|bool
+
+- name: manage /etc/docker-distribution/registry/config.yml
+  template:
+    src: docker-distribution-config.yml.j2
+    dest: /etc/docker-distribution/registry/config.yml
+
+- name: enable and start docker-distribution
+  systemd:
+    enabled: true
+    state: started
+    name: docker-distribution

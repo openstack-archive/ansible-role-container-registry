@@ -1,0 +1,16 @@
+---
+# defaults file for ansible-role-container-registry
+
+debug: false
+deploy_docker: true
+deploy_docker_distribution: true
+deployment_user: centos
+docker_options: '--log-driver=journald --signature-verification=false --iptables=false --live-restore'
+enable_container_images_build: true
+insecure_registries: ''
+network_options: ''
+registry_host: localhost
+registry_mirror: ''
+registry_port: 8787
+selinux_enabled: false
+storage_options: '-s overlay2'

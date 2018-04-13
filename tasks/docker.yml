@@ -1,0 +1,77 @@
+---
+# tasks file for ansible-role-container-registry
+
+# NOTE(aschultz): LP#1750194 - need to set ip_forward before docker starts
+# so lets set it before we install the package if we're managing it.
+- name: enable net.ipv4.ip_forward
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: install the latest version of Docker
+  yum:
+    name: docker
+    state: latest
+
+- name: manage /etc/systemd/system/docker.service.d
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: unset mountflags
+  blockinfile:
+    path: /etc/systemd/system/docker.service.d/99-unset-mountflags.conf
+    block: |
+      [Service]
+      MountFlags=
+
+- name: configure OPTIONS in /etc/sysconfig/docker
+  lineinfile:
+    path: /etc/sysconfig/docker
+    regexp: '^OPTIONS='
+    line: "OPTIONS='--iptables={{ selinux_enabled|bool }} {{ docker_options }}'"
+
+- name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
+  lineinfile:
+    path: /etc/sysconfig/docker
+    regexp: '^INSECURE_REGISTRY='
+    line: "INSECURE_REGISTRY='--insecure-registry {{ insecure_registries }}'"
+  when: insecure_registries != ""
+
+# There is no native way to edit JSON so we use a template.
+- name: manage /etc/docker/daemon.json
+  template:
+    src: docker-daemon.json.j2
+    dest: /etc/docker/daemon.json
+
+- name: configure DOCKER_STORAGE_OPTIONS in /etc/sysconfig/docker-storage
+  lineinfile:
+    path: /etc/sysconfig/docker-storage
+    regexp: '^DOCKER_STORAGE_OPTIONS='
+    line: "DOCKER_STORAGE_OPTIONS=' {{ storage_options }}'"
+  when: storage_options != ""
+
+- name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
+  lineinfile:
+    path: /etc/sysconfig/docker-network
+    regexp: '^DOCKER_NETWORK_OPTIONS='
+    line: "DOCKER_NETWORK_OPTIONS=' {{ network_options }}'"
+  when: storage_options != ""
+
+- name: add deployment user to docker group
+  user:
+    name: "{{ deployment_user }}"
+    groups: docker
+    append: yes
+
+- name: force systemd to reread configs
+  systemd: daemon_reload=yes
+
+- name: enable and start docker
+  systemd:
+    enabled: true
+    state: started
+    name: docker
