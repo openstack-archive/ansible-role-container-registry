@@ -28,6 +28,7 @@
       [Service]
       MountFlags=
   notify: restart docker service
+  create: yes
 
 - name: configure OPTIONS in /etc/sysconfig/docker
   lineinfile:
@@ -35,6 +36,7 @@
     regexp: '^OPTIONS='
     line: "OPTIONS='--iptables={{ selinux_enabled|bool }} {{ docker_options }}'"
   notify: restart docker service
+  create: yes
 
 - name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
   lineinfile:
@@ -58,6 +60,7 @@
     line: "DOCKER_STORAGE_OPTIONS=' {{ storage_options }}'"
   when: storage_options != ""
   notify: restart docker service
+  create: yes
 
 - name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
   lineinfile:
@@ -66,6 +69,7 @@
     line: "DOCKER_NETWORK_OPTIONS=' {{ network_options }}'"
   when: storage_options != ""
   notify: restart docker service
+  create: yes
 
 - name: add deployment user to docker group
   user:
