@@ -27,12 +27,14 @@
     block: |
       [Service]
       MountFlags=
+  notify: restart docker service
 
 - name: configure OPTIONS in /etc/sysconfig/docker
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^OPTIONS='
     line: "OPTIONS='--iptables={{ selinux_enabled|bool }} {{ docker_options }}'"
+  notify: restart docker service
 
 - name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
   lineinfile:
@@ -40,12 +42,14 @@
     regexp: '^INSECURE_REGISTRY='
     line: "INSECURE_REGISTRY='--insecure-registry {{ insecure_registries }}'"
   when: insecure_registries != ""
+  notify: restart docker service
 
 # There is no native way to edit JSON so we use a template.
 - name: manage /etc/docker/daemon.json
   template:
     src: docker-daemon.json.j2
     dest: /etc/docker/daemon.json
+  notify: restart docker service
 
 - name: configure DOCKER_STORAGE_OPTIONS in /etc/sysconfig/docker-storage
   lineinfile:
@@ -53,6 +57,7 @@
     regexp: '^DOCKER_STORAGE_OPTIONS='
     line: "DOCKER_STORAGE_OPTIONS=' {{ storage_options }}'"
   when: storage_options != ""
+  notify: restart docker service
 
 - name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
   lineinfile:
@@ -60,6 +65,7 @@
     regexp: '^DOCKER_NETWORK_OPTIONS='
     line: "DOCKER_NETWORK_OPTIONS=' {{ network_options }}'"
   when: storage_options != ""
+  notify: restart docker service
 
 - name: add deployment user to docker group
   user:

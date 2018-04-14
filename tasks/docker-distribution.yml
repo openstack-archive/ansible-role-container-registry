@@ -22,6 +22,7 @@
   template:
     src: docker-distribution-config.yml.j2
     dest: /etc/docker-distribution/registry/config.yml
+  notify: restart docker-distribution service
 
 - name: enable and start docker-distribution
   systemd:
