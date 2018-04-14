@@ -2,7 +2,7 @@ ansible-role-container-registry
 ===============================
 
 A role to deploy a container registry.
-For now, the role only supports Docker Registry v2.
+For now, the role only support Docker Registry v2.
 
 Requirements
 ------------
