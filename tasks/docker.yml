@@ -71,6 +71,11 @@
   when: storage_options != ""
   notify: restart docker service
 
+- name: ensure docker group exists
+  group:
+    name: docker
+    state: present
+
 - name: add deployment user to docker group
   user:
     name: "{{ deployment_user }}"
