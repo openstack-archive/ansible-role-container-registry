@@ -2,5 +2,5 @@
 {% if registry_mirror != "" %}
 "registry-mirrors": ["{{ registry_mirror }}"],
 {% endif %}
-  "debug": "{{ debug }}"
+  "debug": {{ debug|lower }}
 }
