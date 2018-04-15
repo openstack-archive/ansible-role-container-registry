@@ -1,12 +1,6 @@
 ---
 # tasks file for ansible-role-container-registry
 
-# Required to have a v2 registry
-- name: ensure the Docker Registry is absent
-  yum:
-    name: docker-registry
-    state: absent
-
 - name: ensure docker-distribution is installed
   yum:
     name: docker-distribution
