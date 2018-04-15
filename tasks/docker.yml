@@ -52,7 +52,8 @@
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^INSECURE_REGISTRY='
-    line: "INSECURE_REGISTRY='--insecure-registry {{ insecure_registries }}'"
+    line: "INSECURE_REGISTRY='--insecure-registry {{ item }}'"
+  with_items: "{{ insecure_registries }}"
   when: insecure_registries != ""
   notify: restart docker service
 
