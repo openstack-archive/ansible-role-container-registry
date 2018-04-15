@@ -30,13 +30,23 @@
     create: yes
   notify: restart docker service
 
+- name: configure OPTIONS and enable selinux in /etc/sysconfig/docker
+  lineinfile:
+    path: /etc/sysconfig/docker
+    regexp: '^OPTIONS='
+    line: "OPTIONS='--selinux-enabled {{ docker_options }}'"
+    create: yes
+  notify: restart docker service
+  when: selinux_enabled|bool
+
 - name: configure OPTIONS in /etc/sysconfig/docker
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^OPTIONS='
-    line: "OPTIONS='--iptables={{ selinux_enabled|bool }} {{ docker_options }}'"
+    line: "OPTIONS='{{ docker_options }}'"
     create: yes
   notify: restart docker service
+  when: not selinux_enabled|bool
 
 - name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
   lineinfile:
