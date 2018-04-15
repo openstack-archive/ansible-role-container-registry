@@ -7,10 +7,10 @@
     name: docker-registry
     state: absent
 
-- name: install the latest version of Docker Distribution
+- name: ensure docker-distribution is installed
   yum:
     name: docker-distribution
-    state: latest
+    state: present
 
 - name: install the latest version of openstack-kolla
   yum:
