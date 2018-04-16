@@ -1,4 +1,3 @@
----
 # tasks file for ansible-role-container-registry
 
 # NOTE(aschultz): LP#1750194 - need to set ip_forward before docker starts
@@ -20,48 +19,39 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+  when: ansible_service_mgr == 'systemd'
 
 - name: unset mountflags
-  blockinfile:
+  ini_file:
     path: /etc/systemd/system/docker.service.d/99-unset-mountflags.conf
-    block: |
-      [Service]
-      MountFlags=
+    section: Service
+    option: MountFlags
+    value: ""
     create: yes
   notify: restart docker service
-
-- name: configure OPTIONS and enable selinux in /etc/sysconfig/docker
-  lineinfile:
-    path: /etc/sysconfig/docker
-    regexp: '^OPTIONS='
-    line: "OPTIONS='--selinux-enabled {{ docker_options }}'"
-    create: yes
-  notify: restart docker service
-  when: selinux_enabled|bool
+  when: ansible_service_mgr == 'systemd'
 
 - name: configure OPTIONS in /etc/sysconfig/docker
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^OPTIONS='
-    line: "OPTIONS='{{ docker_options }}'"
+    line: "OPTIONS='{{ _full_docker_options }}'"
     create: yes
   notify: restart docker service
-  when: not selinux_enabled|bool
 
 - name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^INSECURE_REGISTRY='
     line: "INSECURE_REGISTRY='{{ registry_flags }}'"
-  when: insecure_registries | length > 0
+  when: container_registry_insecure_registries | length > 0
   notify: restart docker service
   vars:
-    registry_flags: "{% for reg in insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
+    registry_flags: "{% for reg in container_registry_insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
 
-# There is no native way to edit JSON so we use a template.
 - name: manage /etc/docker/daemon.json
-  template:
-    src: docker-daemon.json.j2
+  copy:
+    content: "{{ _docker_daemon_config | from_yaml | to_nice_json }}"
     dest: /etc/docker/daemon.json
   notify: restart docker service
 
@@ -69,18 +59,18 @@
   lineinfile:
     path: /etc/sysconfig/docker-storage
     regexp: '^DOCKER_STORAGE_OPTIONS='
-    line: "DOCKER_STORAGE_OPTIONS=' {{ storage_options }}'"
+    line: "DOCKER_STORAGE_OPTIONS=' {{ container_registry_storage_options }}'"
     create: yes
-  when: storage_options != ""
+  when: container_registry_storage_options != ""
   notify: restart docker service
 
 - name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
   lineinfile:
     path: /etc/sysconfig/docker-network
     regexp: '^DOCKER_NETWORK_OPTIONS='
-    line: "DOCKER_NETWORK_OPTIONS=' {{ network_options }}'"
+    line: "DOCKER_NETWORK_OPTIONS=' {{ container_registry_network_options }}'"
     create: yes
-  when: storage_options != ""
+  when: container_registry_storage_options != ""
   notify: restart docker service
 
 - name: ensure docker group exists
@@ -90,15 +80,18 @@
 
 - name: add deployment user to docker group
   user:
-    name: "{{ deployment_user }}"
+    name: "{{ container_registry_deployment_user }}"
     groups: docker
     append: yes
 
 - name: force systemd to reread configs
-  systemd: daemon_reload=yes
+  systemd:
+    daemon_reload: yes
+  when: ansible_service_mgr == 'systemd'
 
 - name: enable and start docker
   systemd:
     enabled: true
     state: started
     name: docker
+  when: ansible_service_mgr == 'systemd'
