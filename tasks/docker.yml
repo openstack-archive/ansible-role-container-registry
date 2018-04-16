@@ -52,10 +52,11 @@
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: '^INSECURE_REGISTRY='
-    line: "INSECURE_REGISTRY='--insecure-registry {{ item }}'"
-  with_items: "{{ insecure_registries }}"
-  when: insecure_registries != ""
+    line: "INSECURE_REGISTRY='{{ registry_flags }}'"
+  when: insecure_registries | length > 0
   notify: restart docker service
+  vars:
+    registry_flags: "{% for reg in insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
 
 # There is no native way to edit JSON so we use a template.
 - name: manage /etc/docker/daemon.json
