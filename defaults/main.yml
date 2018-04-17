@@ -10,5 +10,5 @@ container_registry_insecure_registries: []
 container_registry_network_options: ''
 container_registry_host: localhost
 container_registry_port: 8787
-container_registry_mirrors: []
+container_registry_mirror: ''
 container_registry_storage_options: '-s overlay2'

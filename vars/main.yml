@@ -1,4 +1,1 @@
 _full_docker_options: "{% if ansible_selinux.status == 'enabled' %}--selinux-enabled {% endif %}{{ container_registry_docker_options }}"
-_docker_daemon_config: |
-  debug: {{ container_registry_debug }}
-  {% if container_registry_mirrors | length > 0 %}registry-mirrors: [{{ container_registry_mirrors }}]{% endif %}

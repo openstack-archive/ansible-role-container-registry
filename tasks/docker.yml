@@ -50,8 +50,8 @@
     registry_flags: "{% for reg in container_registry_insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
 
 - name: manage /etc/docker/daemon.json
-  copy:
-    content: "{{ _docker_daemon_config | from_yaml | to_nice_json }}"
+  template:
+    src: docker-daemon.json.j2
     dest: /etc/docker/daemon.json
   notify: restart docker service
 

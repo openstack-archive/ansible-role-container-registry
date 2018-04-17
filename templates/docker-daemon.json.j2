@@ -1,0 +1,6 @@
+{
+{% if container_registry_mirror != "" %}
+  "registry-mirrors": ["{{ container_registry_mirror }}"],
+{% endif %}
+  "debug": {{ container_registry_debug|lower }}
+}
