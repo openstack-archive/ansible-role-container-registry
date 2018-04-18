@@ -83,6 +83,7 @@
     name: "{{ container_registry_deployment_user }}"
     groups: docker
     append: yes
+  when: container_registry_deployment_user != ""
 
 - name: force systemd to reread configs
   systemd:
