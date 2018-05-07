@@ -49,6 +49,14 @@
   vars:
     registry_flags: "{% for reg in container_registry_insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
 
+- name: Create additional socket directories
+  file:
+    path: "{{ item | dirname }}"
+    state: directory
+  notify: restart docker service
+  with_items: "{{ container_registry_additional_sockets }}"
+  when: container_registry_additional_sockets | length > 0
+
 - name: manage /etc/docker/daemon.json
   template:
     src: docker-daemon.json.j2

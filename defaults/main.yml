@@ -13,3 +13,4 @@ container_registry_port: 8787
 container_registry_mirror: ''
 container_registry_storage_options: '-s overlay2'
 container_registry_selinux: false
+container_registry_additional_sockets: []
