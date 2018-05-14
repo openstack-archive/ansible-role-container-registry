@@ -5,12 +5,6 @@
     name: docker-distribution
     state: present
 
-- name: install the latest version of openstack-kolla
-  yum:
-    name: openstack-kolla
-    state: latest
-  when: container_registry_enable_container_images_build|bool
-
 - name: manage /etc/docker-distribution/registry/config.yml
   template:
     src: docker-distribution-config.yml.j2
