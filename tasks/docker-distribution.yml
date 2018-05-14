@@ -16,3 +16,9 @@
     enabled: true
     state: started
     name: docker-distribution
+
+- name: validate that registry is up
+  uri:
+    # Just checking API version should be fine
+    # https://docs.docker.com/registry/spec/api/#api-version-check
+    url: "http://{{ container_registry_host }}:{{ container_registry_port }}/v2/"
