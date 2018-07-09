@@ -94,9 +94,7 @@
   when: container_registry_deployment_user != ""
 
 - name: force systemd to reread configs
-  systemd:
-    daemon_reload: yes
-  when: ansible_service_mgr == 'systemd'
+  meta: flush_handlers
 
 - name: enable and start docker
   systemd:

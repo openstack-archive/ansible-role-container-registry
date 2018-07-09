@@ -1,13 +1,56 @@
-# handlers file for ansible-role-container-registry
-
+---
 - name: restart docker
-  service:
-    name: docker
-    state: restarted
+  command: /bin/true
+  notify:
+    - Docker | reload systemd
+    - Docker | reload docker
+    - Docker | pause while Docker restarts
+    - Docker | wait for docker
   listen: "restart docker service"
 
 - name: restart docker-distribution
+  command: /bin/true
+  notify:
+    - Docker | reload systemd
+    - Docker | reload docker-distribution
+    - Docker | wait for registry
+  listen: "restart docker-distribution service"
+
+- name: Docker | reload systemd
+  systemd:
+    daemon_reload: yes
+  when: ansible_service_mgr == 'systemd'
+
+- name: Docker | reload docker
+  service:
+    name: docker
+    state: restarted
+
+- name: Docker | pause while Docker restarts
+  pause:
+    seconds: 10
+    prompt: "Waiting for docker restart"
+
+- name: Docker | wait for docker
+  command: /usr/bin/docker images
+  register: docker_ready
+  retries: 10
+  delay: 5
+  until: docker_ready.rc == 0
+
+- name: Docker | reload docker-distribution
   service:
     name: docker-distribution
     state: restarted
-  listen: "restart docker-distribution service"
+
+# NOTE(bogdando): import caveates https://github.com/ansible/ansible/issues/42621
+- name: Docker | wait for registry
+  uri:
+    # Just checking API version should be fine
+    # https://docs.docker.com/registry/spec/api/#api-version-check
+    url: "http://{{ container_registry_host }}:{{ container_registry_port }}/v2/"
+    return_content: yes
+  register: registry_status
+  retries: 10
+  delay: 5
+  until: "registry_status.status|int == 200 and 'OK' in registry_status.msg"
