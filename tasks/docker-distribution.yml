@@ -1,7 +1,7 @@
 # tasks file for ansible-role-container-registry
 
 - name: ensure docker-distribution is installed
-  yum:
+  package:
     name: docker-distribution
     state: present
 
