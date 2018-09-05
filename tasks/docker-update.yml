@@ -15,7 +15,7 @@
 
 
 - name: can docker be updated
-  shell: {{ registry_pkg_manager }} check-update docker
+  shell: "{{ registry_pkg_manager }} check-update docker"
   register: docker_check_update
   failed_when: docker_check_update.rc not in [0, 100]
   changed_when: docker_check_update.rc == 100
