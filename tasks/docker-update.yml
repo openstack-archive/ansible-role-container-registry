@@ -1,51 +1,54 @@
 # tasks file for ansible-role-container-registry
 # the tasks will ensure docker is up to date.
 
-- name: set package manager to yum
-  set_fact:
-    registry_pkg_manager: yum
-  when:
-    - ansible_os_family == 'RedHat'
-    - ansible_distribution_major_version|int == 7
+- block:
+    - name: set package manager to yum
+      set_fact:
+        registry_pkg_manager: yum
+      when:
+        - ansible_os_family == 'RedHat'
+        - ansible_distribution_major_version|int == 7
 
-- name: set package manager to dnf
-  set_fact:
-    registry_pkg_manager: dnf
-  when: (ansible_os_family == 'RedHat' and ansible_distribution_major_version|int > 7) or (ansible_distribution == 'Fedora')
+    - name: set package manager to dnf
+      set_fact:
+        registry_pkg_manager: dnf
+      when: (ansible_os_family == 'RedHat' and ansible_distribution_major_version|int > 7) or (ansible_distribution == 'Fedora')
 
 
-- name: can docker be updated
-  shell: "{{ registry_pkg_manager }} check-update docker"
-  register: docker_check_update
-  failed_when: docker_check_update.rc not in [0, 100]
-  changed_when: docker_check_update.rc == 100
+    - name: can docker be updated
+      shell: "{{ registry_pkg_manager }} check-update docker"
+      register: docker_check_update
+      failed_when: docker_check_update.rc not in [0, 100]
+      changed_when: docker_check_update.rc == 100
 
-- name: set docker_rpm_needs_update fact
-  set_fact: docker_rpm_needs_update={{ docker_check_update.rc == 100 }}
+    - name: set docker_rpm_needs_update fact
+      set_fact: docker_rpm_needs_update={{ docker_check_update.rc == 100 }}
 
-- name: stop all containers before update
-  # xargs is preferable to docker stop $(docker ps -q) as that might generate a
-  # a too long command line
-  shell: docker ps -q | xargs --no-run-if-empty -n1 docker stop
-  when: docker_rpm_needs_update
+    - name: stop all containers before update
+      # xargs is preferable to docker stop $(docker ps -q) as that might generate a
+      # a too long command line
+      shell: docker ps -q | xargs --no-run-if-empty -n1 docker stop
+      when: docker_rpm_needs_update
 
-- name: ensure docker is installed
-  package:
-    name: docker
-    state: present
-  when: docker_rpm_needs_update
+    - name: ensure docker is installed
+      package:
+        name: docker
+        state: present
+      when: docker_rpm_needs_update
 
-- name: update the docker package (yum)
-  yum: name=docker state=latest update_cache=yes # cache for https://bugs.launchpad.net/tripleo/+bug/1703830
-  notify: restart docker service
-  when:
-    - docker_rpm_needs_update
-    - registry_pkg_manager == 'yum'
+    - name: update the docker package (yum)
+      yum: name=docker state=latest update_cache=yes # cache for https://bugs.launchpad.net/tripleo/+bug/1703830
+      notify: restart docker service
+      when:
+        - docker_rpm_needs_update
+        - registry_pkg_manager == 'yum'
 
-- name: update the docker package (dnf)
-  dnf: name=docker state=latest
-  notify: restart docker service
-  when:
-    - docker_rpm_needs_update
-    - registry_pkg_manager == 'dnf'
+    - name: update the docker package (dnf)
+      dnf: name=docker state=latest
+      notify: restart docker service
+      when:
+        - docker_rpm_needs_update
+        - registry_pkg_manager == 'dnf'
 
+  # Note(mfedosin): explicitly skip all preceding tasks if we don't need reconfiguration.
+  when: not container_registry_skip_reconfiguration

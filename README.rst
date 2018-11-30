@@ -54,6 +54,9 @@ Role Variables
    * - `container_registry_additional_sockets`
      - `[undefined]`
      - Additional sockets for containers
+   * - `container_registry_skip_reconfiguration`
+     - `false`
+     - Do not perform container registry reconfiguration if it's already configured
 
 Requirements
 ------------

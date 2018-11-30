@@ -43,7 +43,7 @@
     name: docker-distribution
     state: restarted
 
-# NOTE(bogdando): import caveates https://github.com/ansible/ansible/issues/42621
+# NOTE(bogdando): import caveats https://github.com/ansible/ansible/issues/42621
 - name: Docker | wait for registry
   uri:
     # Just checking API version should be fine
