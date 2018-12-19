@@ -45,6 +45,7 @@
           XFS volumes formatted using ftype=0 are incompatible
           with the docker overlayfs driver.
       when:
+        - not ansible_check_mode
         - ftype.stdout == 'ftype=0'
 
     - name: ensure docker is installed
