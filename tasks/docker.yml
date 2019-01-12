@@ -85,7 +85,7 @@
       when: container_registry_insecure_registries | length > 0
       notify: restart docker service
       vars:
-        registry_flags: "{% for reg in container_registry_insecure_registries %}--insecure-registry {{ reg }}{% if not loop.last %} {% endif %}{% endfor %}"
+        registry_flags: --insecure-registry {{ container_registry_insecure_registries | join(' --insecure-registry ') }}
 
     - name: Create additional socket directories
       file:
@@ -107,7 +107,7 @@
         regexp: '^DOCKER_STORAGE_OPTIONS='
         line: "DOCKER_STORAGE_OPTIONS=' {{ container_registry_storage_options }}'"
         create: yes
-      when: container_registry_storage_options != ""
+      when: container_registry_storage_options | length > 0
       notify: restart docker service
 
     - name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
@@ -116,7 +116,7 @@
         regexp: '^DOCKER_NETWORK_OPTIONS='
         line: "DOCKER_NETWORK_OPTIONS=' {{ container_registry_network_options }}'"
         create: yes
-      when: container_registry_storage_options != ""
+      when: container_registry_storage_options | length > 0
       notify: restart docker service
 
     - name: ensure docker group exists
@@ -129,7 +129,7 @@
         name: "{{ container_registry_deployment_user }}"
         groups: docker
         append: yes
-      when: container_registry_deployment_user != ""
+      when: container_registry_deployment_user | length > 0
 
     - name: force systemd to reread configs
       meta: flush_handlers

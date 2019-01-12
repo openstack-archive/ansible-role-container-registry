@@ -10,7 +10,9 @@
 # ANSIBLE0013: Use Shell only when shell functionality is required
 # ANSIBLE0016: Tasks that run when changed should likely be handlers
 #   this requires refactoring roles, skipping for now
-SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016"
+# 405: Package tasks should have retries. Skipping because yum does
+#   this natively.
+SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016,405"
 
 # Lin the role.
 ansible-lint -vvv -x $SKIPLIST ./ || lint_error=1
