@@ -19,12 +19,14 @@
 - name: Docker | reload systemd
   systemd:
     daemon_reload: yes
+  become: true
   when: ansible_service_mgr == 'systemd'
 
 - name: Docker | reload docker
   service:
     name: docker
     state: restarted
+  become: true
 
 - name: Docker | pause while Docker restarts
   pause:
@@ -42,6 +44,7 @@
   service:
     name: docker-distribution
     state: restarted
+  become: true
 
 # NOTE(bogdando): import caveats https://github.com/ansible/ansible/issues/42621
 - name: Docker | wait for registry

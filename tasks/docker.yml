@@ -25,7 +25,6 @@
     # NOTE(aschultz): LP#1765121 - need to check that we don't have any ftype=0
     # volumes because other wise docker is very unhappy
     - name: Check if there are XFS volumes with ftype=0
-      become: true
       shell: |
         for dev in $(df -h | grep '/dev/' | grep -v 'tmp' | cut -d' ' -f1)
         do
@@ -148,4 +147,5 @@
         insertafter: "^# /etc/sysconfig/docker$"
         create: yes
 
+  become: true
   when: not container_registry_skip_reconfiguration or is_configured.rc != 0
