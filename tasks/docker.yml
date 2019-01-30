@@ -131,6 +131,10 @@
         append: yes
       when: container_registry_deployment_user | length > 0
 
+    - name: reset ssh connection to pick up docker group
+      meta: reset_connection
+      when: container_registry_deployment_user | length > 0
+
     - name: force systemd to reread configs
       meta: flush_handlers
 
