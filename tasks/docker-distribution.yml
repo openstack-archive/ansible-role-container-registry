@@ -4,11 +4,13 @@
   package:
     name: docker-distribution
     state: present
+  become: true
 
 - name: manage /etc/docker-distribution/registry/config.yml
   template:
     src: docker-distribution-config.yml.j2
     dest: /etc/docker-distribution/registry/config.yml
+  become: true
   notify: restart docker-distribution service
 
 - name: force systemd to reread configs
@@ -19,3 +21,4 @@
     enabled: true
     state: started
     name: docker-distribution
+  become: true
