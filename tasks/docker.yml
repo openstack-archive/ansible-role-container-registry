@@ -8,10 +8,13 @@
   command: grep -Fq "# Configured by Ansible container registry role" /etc/sysconfig/docker
   register: is_configured
   check_mode: false
-  ignore_errors: true
+  failed_when: false
   changed_when: false
 
-- block:
+- name: configure docker registry block
+  when: not container_registry_skip_reconfiguration or is_configured.rc != 0
+  become: true
+  block:
     # NOTE(aschultz): LP#1750194 - need to set ip_forward before docker starts
     # so lets set it before we install the package if we're managing it.
     - name: enable net.ipv4.ip_forward
@@ -150,6 +153,3 @@
         line: "# Configured by Ansible container registry role"
         insertafter: "^# /etc/sysconfig/docker$"
         create: yes
-
-  become: true
-  when: not container_registry_skip_reconfiguration or is_configured.rc != 0
