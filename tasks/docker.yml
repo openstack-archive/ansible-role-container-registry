@@ -118,7 +118,7 @@
         regexp: '^DOCKER_NETWORK_OPTIONS='
         line: "DOCKER_NETWORK_OPTIONS=' {{ container_registry_network_options }}'"
         create: yes
-      when: container_registry_storage_options | length > 0
+      when: container_registry_network_options | length > 0
       notify: restart docker service
 
     - name: ensure docker group exists
