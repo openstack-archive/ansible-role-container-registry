@@ -1,12 +1,12 @@
 - project:
-    templates:
-      - tripleo-multinode-container-minimal
     check:
       jobs:
         - openstack-tox-linters
+        - tripleo-ci-centos-7-undercloud-containers
     gate:
       jobs:
         - openstack-tox-linters
+        - tripleo-ci-centos-7-undercloud-containers
     post:
       jobs:
         - publish-openstack-python-branch-tarball
