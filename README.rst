@@ -57,6 +57,10 @@ Role Variables
    * - `container_registry_skip_reconfiguration`
      - `false`
      - Do not perform container registry reconfiguration if it's already configured
+   * - `container_registry_logins`
+     - `[]`
+     - A dictionary containing registries and a username and a password associated with the registry.
+       Example: {'docker.io': {'myusername': 'mypassword'}, 'registry.example.com:8787': {'otheruser': 'otherpass'}}
 
 Requirements
 ------------
