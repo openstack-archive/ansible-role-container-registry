@@ -1,0 +1,11 @@
+# tasks file for ansible-role-container-registry
+
+- name: perform docker login
+  become: true
+  docker_login:
+    username: "{{ lookup('dict', item.value).key }}"
+    password: "{{ lookup('dict', item.value).value }}"
+    registry: "{{ item.key }}"
+  loop: "{{ lookup('dict', container_registry_logins) }}"
+  when: container_registry_logins | length > 0
+
