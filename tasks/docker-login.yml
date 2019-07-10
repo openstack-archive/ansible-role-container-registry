@@ -1,3 +1,5 @@
+---
+
 # tasks file for ansible-role-container-registry
 
 - name: perform docker login

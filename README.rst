@@ -92,3 +92,61 @@ License
 -------
 
 Apache 2.0
+
+
+Running local testing
+---------------------
+
+Local testing of this role can be done in a number of ways.
+
+Mimic Zuul
+~~~~~~~~~~
+
+Sometimes its nessisary to setup a test that will mimic what the OpenStack gate
+will do (Zuul). To run tests that minic the gate, `python-virtualenv` `git`,
+`gcc`, and `ansible` are required.
+
+.. code-block:: shell
+
+    $ sudo yum install python-virtualenv git gcc
+
+
+Once the packages are installed, create a python virtual environment.
+
+.. code-block:: shell
+
+    $ python -m virtualenv --system-site-packages ~/test-python
+    $ ~/test-python/bin/pip install pip setuptools --upgrade
+
+
+Now install the latest Ansible
+
+.. code-block:: shell
+
+    $ ~/test-python/bin/pip install ansible
+
+
+With Ansible installed, activate the virtual environment and run the
+`run-local.yml` test playbook.
+
+.. code-block:: shell
+
+    $ source ~/test-python/bin/activate
+    (test-python) $ ansible-playbook -i 'localhost,' \
+                                     -e "tripleo_src=$(realpath --relative-to="${HOME}" "$(pwd)")" \
+                                     -e "ansible_user=${USER}" \
+                                     -e "ansible_user_dir=${HOME}" \
+                                     -e "ansible_connection=local" \
+                                     zuul.d/playbooks/run-local.yml
+
+
+Running Molecule directly
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is also possible to test this role using molecule directly. When running
+tests directly it is assumed all of the dependencies are setup and ready to
+run on the local workstation. When
+
+.. code-block:: shell
+
+    $ molecule test --all

@@ -1,0 +1,15 @@
+- job:
+    description: Base ansible-role-container-registry job
+    name: ansible-role-container-registry-centos-7-base
+    nodeset: centos-7
+    parent: base
+    pre-run:
+    - zuul.d/playbooks/pre.yml
+    timeout: 1800
+    voting: true
+- job:
+    description: Run molecule testing
+    name: ansible-role-container-registry-centos-7-molecule
+    parent: ansible-role-container-registry-centos-7-base
+    run:
+    - zuul.d/playbooks/run.yml

@@ -1,3 +1,5 @@
+---
+
 # tasks file for ansible-role-container-registry
 
 - include_tasks: docker.yml

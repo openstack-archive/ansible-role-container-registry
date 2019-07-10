@@ -1,0 +1,74 @@
+---
+
+- hosts: all
+  vars:
+    molecule_requirements:
+      - ansible
+      - ansi2html
+      - docker
+      - pytest
+      - pytest-cov
+      - pytest-html
+      - pytest-xdist
+      - mock
+      - molecule>=2.22rc1
+
+  tasks:
+    - name: set basic user fact
+      fail:
+        msg: >-
+          The variable `ansible_user` set this option and try again. On the
+          CLI this can be defined with "-e ansible_user=${USER}"
+      when:
+        - ansible_user is undefined
+
+    - name: set basic home fact
+      fail:
+        msg: >-
+          The variable `ansible_user_dir` set this option and try again. On
+          the CLI this can be defined with "-e ansible_user_dir=${HOME}"
+      when:
+        - ansible_user_dir is undefined
+
+    - name: Ensure the user has a .ssh directory
+      file:
+        path: "{{ ansible_user_dir }}/.ssh"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0700"
+
+    - name: Create ssh key pair
+      user:
+        name: "{{ ansible_user }}"
+        generate_ssh_key: true
+        ssh_key_bits: 2048
+        ssh_key_file: "{{ ansible_user_dir }}/.ssh/id_rsa"
+
+    - name: Slurp pub key
+      slurp:
+        src: "{{ ansible_user_dir ~ '/.ssh/id_rsa.pub' }}"
+      register: pub_key
+
+    - name: Ensure can ssh to can connect to localhost
+      authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ pub_key['content'] | b64decode }}"
+
+    - name: Ensure output dirs
+      file:
+        path: "{{ ansible_user_dir }}/zuul-output/logs"
+        state: directory
+
+    - name: Get the zuul/zuul-jobs repo
+      git:
+        repo: https://opendev.org/zuul/zuul-jobs
+        dest: "{{ ansible_user_dir }}/zuul-jobs"
+        version: master
+        force: true
+
+    - name: Setup test-python
+      pip:
+        name: "{{ molecule_requirements }}"
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_site_packages: true
