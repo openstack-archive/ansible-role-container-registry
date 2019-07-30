@@ -12,14 +12,14 @@ driver:
       -o VerifyHostKeyDNS=no
       -o ForwardX11=no
       -o ForwardAgent=no
-      {instance}
+      {instance-login}
     ansible_connection_options:
       ansible_connection: ssh
 
 log: true
 
 platforms:
-  - name: instance
+  - name: instance-login
 
 provisioner:
   name: ansible
@@ -31,8 +31,9 @@ provisioner:
     hosts:
       all:
         hosts:
-          instance:
+          instance-login:
             ansible_host: localhost
+            ansible_user: zuul
   log: true
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml

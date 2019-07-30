@@ -12,14 +12,14 @@ driver:
       -o VerifyHostKeyDNS=no
       -o ForwardX11=no
       -o ForwardAgent=no
-      {instance}
+      {instance-default}
     ansible_connection_options:
       ansible_connection: ssh
 
 log: true
 
 platforms:
-  - name: instance
+  - name: instance-default
 
 provisioner:
   name: ansible
@@ -31,7 +31,7 @@ provisioner:
     hosts:
       all:
         hosts:
-          instance:
+          instance-default:
             ansible_host: localhost
   log: true
   env:

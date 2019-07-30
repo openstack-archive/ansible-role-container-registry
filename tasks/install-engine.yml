@@ -1,0 +1,17 @@
+---
+- name: Install and Start Docker
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version|int < 8
+  become: true
+  block:
+    - name: Install Docker
+      package:
+        name: docker
+        state: present
+      register: container_registry_docker_install
+
+    - name: Start Docker daemon
+      service:
+        name: docker
+        state: started

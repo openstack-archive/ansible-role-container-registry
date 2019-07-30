@@ -15,3 +15,4 @@ container_registry_selinux: false
 container_registry_additional_sockets: []
 container_registry_skip_reconfiguration: false
 container_registry_logins: {}
+container_registry_cleanup_client: false

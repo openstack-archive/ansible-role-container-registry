@@ -1,0 +1,28 @@
+---
+# TODO(gcerami): The login process does not work with dockerhub, as dockerhub requires an
+# auth API call to pass an email address (aven a fake one)
+
+- name: Fail if credentials are not defined or empty
+  fail:
+    msg: "Registry credentials are missing"
+  when: container_registry_logins|default({}) == {}
+
+- import_tasks: install-engine.yml
+
+- name: Try docker command line for authentication
+  block:
+    - name: Login via docker command
+      become: true
+      command: >
+        docker login "{{ item.key }}"
+         --username "{{ lookup('dict', item.value).key }}"
+         --password "{{ lookup('dict', item.value).value  }}"
+      loop: "{{ query('dict', container_registry_logins | default({})) }}"
+      register: registry_login_docker
+  rescue:
+    - debug:
+        msg: "Warning: login failed for some credentials while using docker login"
+
+- import_tasks: cleanup-engine.yml
+  when: container_registry_cleanup_client
+

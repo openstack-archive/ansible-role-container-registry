@@ -1,0 +1,16 @@
+- name: Cleanup Engine
+  block:
+    - name: Remove docker
+      package:
+        name:
+           - docker
+        state: absent
+      register: remove_docker
+      when:
+        - container_registry_docker_install is defined
+        - container_registry_docker_install is changed
+  rescue:
+    - debug:
+        msg: "unable to remove docker"
+  become: true
+
