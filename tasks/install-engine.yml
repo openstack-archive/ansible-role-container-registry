@@ -5,11 +5,22 @@
     - ansible_distribution_major_version|int < 8
   become: true
   block:
+
     - name: Install Docker
       package:
         name: docker
         state: present
       register: container_registry_docker_install
+
+    # Workaround for https://bugs.launchpad.net/tripleo/+bug/1845166/
+    - name: Disable docker iptables
+      when: container_registry_docker_disable_iptables
+      ini_file:
+        path: /etc/sysconfig/docker-network
+        section: null
+        option: DOCKER_NETWORK_OPTIONS
+        value: --iptables=false
+        no_extra_spaces: true
 
     - name: Start Docker daemon
       service:
