@@ -13,7 +13,6 @@
   notify:
     - Docker | reload systemd
     - Docker | reload docker-distribution
-    - Docker | wait for registry
   listen: "restart docker-distribution service"
 
 - name: Docker | reload systemd
@@ -44,6 +43,8 @@
   service:
     name: docker-distribution
     state: restarted
+  notify:
+    - Docker | wait for registry
   become: true
 
 # NOTE(bogdando): import caveats https://github.com/ansible/ansible/issues/42621
