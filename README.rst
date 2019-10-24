@@ -31,6 +31,9 @@ Role Variables
    * - `container_registry_docker_options`
      - `--log-driver=journald --signature-verification=false --iptables=false --live-restore`
      - Options given to Docker configuration
+   * - `container_registry_docker_disable_iptables`
+     - `false`
+     - Adds --iptables=false to /etc/sysconfig/docker-network config
    * - `container_registry_insecure_registries`
      - `[]`
      - Array of insecure registries
