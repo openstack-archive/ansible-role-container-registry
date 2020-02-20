@@ -9,4 +9,5 @@
     password: "{{ lookup('dict', item.value).value }}"
     registry: "{{ item.key }}"
   loop: "{{ query('dict', container_registry_logins | default({})) }}"
+  no_log: "{{ not container_registry_debug|bool }}"
   when: container_registry_logins | length > 0
