@@ -11,7 +11,7 @@
       - pytest-html
       - pytest-xdist
       - mock
-      - molecule>=2.22rc1
+      - molecule>=3.0.1
 
   tasks:
     - name: set basic user fact
