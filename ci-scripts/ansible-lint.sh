@@ -12,7 +12,8 @@
 #   this requires refactoring roles, skipping for now
 # 405: Package tasks should have retries. Skipping because yum does
 #   this natively.
-SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016,405"
+# 106: Role name with a -. We're not using galaxy.
+SKIPLIST="ANSIBLE0006,ANSIBLE0007,ANSIBLE0010,ANSIBLE0012,ANSIBLE0013,ANSIBLE0016,405,106"
 
 # Lin the role.
 ansible-lint -vvv -x $SKIPLIST ./ || lint_error=1

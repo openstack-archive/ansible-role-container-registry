@@ -67,6 +67,29 @@
         version: master
         force: true
 
+    - name: Ensure virtualenv is installed
+      include_role:
+        name: ensure-virtualenv
+
+    - name: Set python_v fact to py2 or py3
+      set_fact:
+        python_v: "{{ ansible_facts['distribution_major_version'] is version('8', '>=') | ternary('py3', 'py2') }}"
+        cacheable: true
+
+    - name: Install python3-setuptools
+      package:
+        name: "python3-setuptools"
+        state: present
+      become: true
+      when: python_v == "py3"
+
+    - name: Install python-setuptools
+      package:
+        name: "python-setuptools"
+        state: present
+      become: true
+      when: python_v == "py2"
+
     - name: Setup test-python
       pip:
         name: "{{ molecule_requirements }}"

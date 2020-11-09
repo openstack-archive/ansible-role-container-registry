@@ -21,6 +21,7 @@
         option: DOCKER_NETWORK_OPTIONS
         value: --iptables=false
         no_extra_spaces: true
+        mode: '0644'
 
     - name: Start Docker daemon
       service:
