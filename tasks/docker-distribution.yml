@@ -7,6 +7,7 @@
     name: docker-distribution
     state: present
   become: true
+  register: _distro_install
 
 - name: manage /etc/docker-distribution/registry/config.yml
   template:
@@ -14,14 +15,31 @@
     dest: /etc/docker-distribution/registry/config.yml
     mode: '0644'
   become: true
+  register: _distro_config
   notify: restart docker-distribution service
 
-- name: force systemd to reread configs
-  meta: flush_handlers
-
-- name: enable and start docker-distribution
-  systemd:
-    enabled: true
-    state: started
-    name: docker-distribution
+- name: Handle docker-distribution restart
   become: true
+  when: _distro_install is changed or _distro_config is changed
+  block:
+  - name: Reload systemd
+    systemd:
+      daemon_reload: yes
+    become: true
+  - name: Reload docker-distribution
+    service:
+      enabled: true
+      name: docker-distribution
+      state: restarted
+    become: true
+  # NOTE(bogdando): import caveats https://github.com/ansible/ansible/issues/42621
+  - name: Wait for registry
+    uri:
+      # Just checking API version should be fine
+      # https://docs.docker.com/registry/spec/api/#api-version-check
+      url: "http://{{ container_registry_host }}:{{ container_registry_port }}/v2/"
+      return_content: yes
+    register: registry_status
+    retries: 10
+    delay: 5
+    until: "registry_status.status|int == 200 and 'OK' in registry_status.msg"

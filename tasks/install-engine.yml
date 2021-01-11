@@ -26,4 +26,5 @@
     - name: Start Docker daemon
       service:
         name: docker
+        enabled: true
         state: started

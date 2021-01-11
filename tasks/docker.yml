@@ -69,7 +69,7 @@
         value: ""
         create: yes
         mode: '0644'
-      notify: restart docker service
+      register: _cfg_flags
       when: ansible_service_mgr == 'systemd'
 
     - name: configure OPTIONS in /etc/sysconfig/docker
@@ -79,7 +79,7 @@
         line: "OPTIONS='{{ _full_docker_options }}'"
         create: yes
         mode: '0644'
-      notify: restart docker service
+      register: _cfg_options
 
     - name: configure INSECURE_REGISTRY in /etc/sysconfig/docker
       lineinfile:
@@ -88,7 +88,7 @@
         line: "INSECURE_REGISTRY='{{ registry_flags }}'"
         mode: '0644'
       when: container_registry_insecure_registries | length > 0
-      notify: restart docker service
+      register: _cfg_insecure
       vars:
         registry_flags: --insecure-registry {{ container_registry_insecure_registries | join(' --insecure-registry ') }}
 
@@ -97,7 +97,7 @@
         path: "{{ item | dirname }}"
         state: directory
         mode: '0755'
-      notify: restart docker service
+      register: _cfg_sockets
       with_items: "{{ container_registry_additional_sockets }}"
       when: container_registry_additional_sockets | length > 0
 
@@ -106,7 +106,7 @@
         src: docker-daemon.json.j2
         dest: /etc/docker/daemon.json
         mode: '0644'
-      notify: restart docker service
+      register: _cfg_daemon
 
     - name: configure DOCKER_STORAGE_OPTIONS in /etc/sysconfig/docker-storage
       lineinfile:
@@ -116,7 +116,7 @@
         create: yes
         mode: '0644'
       when: container_registry_storage_options | length > 0
-      notify: restart docker service
+      register: _cfg_storage
 
     - name: configure DOCKER_NETWORK_OPTIONS in /etc/sysconfig/docker-network
       lineinfile:
@@ -126,33 +126,63 @@
         create: yes
         mode: '0644'
       when: container_registry_network_options | length > 0
-      notify: restart docker service
+      register: _cfg_network
 
     - name: ensure docker group exists
       group:
         name: docker
         state: present
+      register: _cfg_group
 
     - name: add deployment user to docker group
       user:
         name: "{{ container_registry_deployment_user }}"
         groups: docker
         append: yes
+      register: _cfg_user
       when: container_registry_deployment_user | length > 0
 
     - name: reset ssh connection to pick up docker group
       meta: reset_connection
-      when: container_registry_deployment_user | length > 0
+      when: _cfg_group is changed or _cfg_user is changed
 
-    - name: force systemd to reread configs
-      meta: flush_handlers
+    - name: Handle docker restart
+      when:
+        - (_cfg_flags is changed
+           or _cfg_options is changed
+           or _cfg_insecure is changed
+           or _cfg_sockets is changed
+           or _cfg_daemon is changed
+           or _cfg_storage is changed
+           or _cfg_network is changed
+           or _cfg_group is changed
+           or _cfg_user is changed)
+      block:
+        - name: Reload systemd
+          systemd:
+            daemon_reload: yes
+          become: true
+          when:
+            - ansible_service_mgr == 'systemd'
+            - _cfg_flags is changed
 
-    - name: enable and start docker
-      systemd:
-        enabled: true
-        state: started
-        name: docker
-      when: ansible_service_mgr == 'systemd'
+        - name: Reload docker
+          service:
+            name: docker
+            enabled: true
+            state: restarted
+          become: true
+
+        - name: Pause while Docker restarts
+          shell: sleep 10
+          changed_when: false
+
+        - name: Wait for docker
+          command: /usr/bin/docker images
+          register: docker_ready
+          retries: 10
+          delay: 5
+          until: docker_ready.rc == 0
 
     - name: mark docker configured
       lineinfile:
