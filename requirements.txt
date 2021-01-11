@@ -1,2 +1,2 @@
 pbr>=1.6
-ansible
+ansible>=2.8,<2.10
