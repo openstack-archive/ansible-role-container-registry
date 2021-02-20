@@ -59,7 +59,7 @@
         path: /etc/systemd/system/docker.service.d
         state: directory
         mode: '0755'
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts['service_mgr'] == 'systemd'
 
     - name: unset mountflags
       ini_file:
@@ -70,7 +70,7 @@
         create: yes
         mode: '0644'
       register: _cfg_flags
-      when: ansible_service_mgr == 'systemd'
+      when: ansible_facts['service_mgr'] == 'systemd'
 
     - name: configure OPTIONS in /etc/sysconfig/docker
       lineinfile:
@@ -163,7 +163,7 @@
             daemon_reload: yes
           become: true
           when:
-            - ansible_service_mgr == 'systemd'
+            - ansible_facts['service_mgr'] == 'systemd'
             - _cfg_flags is changed
 
         - name: Reload docker

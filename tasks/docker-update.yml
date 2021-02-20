@@ -8,13 +8,13 @@
       set_fact:
         registry_pkg_manager: yum
       when:
-        - ansible_os_family == 'RedHat'
-        - ansible_distribution_major_version|int == 7
+        - ansible_facts['os_family'] == 'RedHat'
+        - ansible_facts['distribution_major_version']|int == 7
 
     - name: set package manager to dnf
       set_fact:
         registry_pkg_manager: dnf
-      when: (ansible_os_family == 'RedHat' and ansible_distribution_major_version|int > 7) or (ansible_distribution == 'Fedora')
+      when: (ansible_facts['os_family'] == 'RedHat' and ansible_facts['distribution_major_version']|int > 7) or (ansible_facts['distribution'] == 'Fedora')
 
 
     - name: can docker be updated

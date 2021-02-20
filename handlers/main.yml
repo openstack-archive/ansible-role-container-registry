@@ -19,7 +19,7 @@
   systemd:
     daemon_reload: yes
   become: true
-  when: ansible_service_mgr == 'systemd'
+  when: ansible_facts['service_mgr'] == 'systemd'
 
 - name: Docker | reload docker
   service:
