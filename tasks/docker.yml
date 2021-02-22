@@ -66,7 +66,7 @@
         path: /etc/systemd/system/docker.service.d/99-unset-mountflags.conf
         section: Service
         option: MountFlags
-        value: ""
+        value: '""'
         create: yes
         mode: '0644'
       register: _cfg_flags

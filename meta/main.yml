@@ -1,5 +1,6 @@
 galaxy_info:
-  author: Emilien Macchi
+  role_name: container-registry
+  author: tripleo
   description: A role to deploy a container registry.
 
   license: Apache 2.0

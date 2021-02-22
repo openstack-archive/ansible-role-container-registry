@@ -18,7 +18,9 @@
 - name: Converge
   become: true
   hosts: all
-  roles:
-    - role: ansible-role-container-registry
-      container_registry_deploy_docker: true
-      container_registry_deploy_docker_distribution: true
+  tasks:
+    - include_role:
+        name: ansible-role-container-registry
+      vars:
+        container_registry_deploy_docker: true
+        container_registry_deploy_docker_distribution: true

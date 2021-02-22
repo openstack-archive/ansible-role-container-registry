@@ -8,6 +8,7 @@
       shell: |-
         . {{ ansible_user_dir }}/test-python/bin/activate
         molecule test --all
+      changed_when: true
       args:
         chdir: "{{ ansible_user_dir }}/{{ zuul.project.src_dir }}"
         executable: /bin/bash

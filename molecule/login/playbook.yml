@@ -21,7 +21,8 @@
 - name: Ensure role checks for missing information
   hosts: all
   tasks:
-    - set_fact:
+    - name: Test role failed false
+      set_fact:
         role_failed: false
 
     - name: ensure role fails when credentials missing
@@ -32,7 +33,8 @@
           vars:
             ansible_python_interpreter: "{{ ansible_user_dir }}/test-python/bin/python"
       rescue:
-        - set_fact:
+        - name: Test role failed true
+          set_fact:
             role_failed: true
 
     - name: assert on missing credentials
@@ -156,6 +158,7 @@
           file:
             path: /tmp/tempimage
             state: directory
+            mode: 0755
 
         - name: create Dockerfile
           copy:
@@ -163,6 +166,7 @@
               FROM scratch
               ADD nothing /
             dest: /tmp/tempimage/Dockerfile
+            mode: 0644
 
         - name: Build test image
           become: true
@@ -170,12 +174,14 @@
             cd /tmp/tempimage
             touch nothing
             docker build -t localhost:5000/test/testimage:v1 .
+          changed_when: true
           register: build
 
     - name: Verify authenticated push works
       become: true
       shell: |
         docker push localhost:5000/test/testimage:v1
+      changed_when: true
 
     - name: Cleanup
       include_role:
