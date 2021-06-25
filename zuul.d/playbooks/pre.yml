@@ -1,18 +1,6 @@
 ---
 
 - hosts: all
-  vars:
-    molecule_requirements:
-      - ansible
-      - ansi2html
-      - docker
-      - pytest
-      - pytest-cov
-      - pytest-html
-      - pytest-xdist
-      - mock
-      - molecule>=3.0.1
-
   tasks:
     - name: set basic user fact
       fail:
@@ -29,6 +17,10 @@
           the CLI this can be defined with "-e ansible_user_dir=${HOME}"
       when:
         - ansible_user_dir is undefined
+
+    - name: Set project path fact
+      set_fact:
+        container_registry_project_path: "{{ ansible_user_dir }}/{{ zuul.projects['opendev.org/openstack/ansible-role-container-registry'].src_dir }}"
 
     - name: Ensure the user has a .ssh directory
       file:
@@ -90,8 +82,16 @@
       become: true
       when: python_v == "py2"
 
-    - name: Setup test-python
+    - name: Ensure pbr available
       pip:
-        name: "{{ molecule_requirements }}"
+        name: pbr
         virtualenv: "{{ ansible_user_dir }}/test-python"
         virtualenv_site_packages: true
+
+    - name: Setup test-python
+      pip:
+        requirements: "{{ container_registry_project_path }}/molecule-requirements.txt"
+        virtualenv: "{{ ansible_user_dir }}/test-python"
+        virtualenv_site_packages: true
+        extra_args: >-
+            --constraint "{{ container_registry_project_path }}/ansible-requirements.txt"

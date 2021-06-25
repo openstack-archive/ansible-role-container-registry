@@ -33,7 +33,8 @@
       when:
         - ansible_user_dir is undefined
 
-    - include_role:
+    - name: include container registry role
+      include_role:
         name: ansible-role-container-registry
         tasks_from: docker
 

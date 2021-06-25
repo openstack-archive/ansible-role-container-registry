@@ -20,7 +20,8 @@
       loop: "{{ query('dict', container_registry_logins | default({})) }}"
       register: registry_login_docker
   rescue:
-    - debug:
+    - name: Failed login
+      debug:
         msg: "Warning: login failed for some credentials while using docker login"
 
 - import_tasks: cleanup-engine.yml

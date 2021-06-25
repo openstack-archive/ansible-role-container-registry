@@ -19,7 +19,8 @@
   become: true
   hosts: all
   tasks:
-    - include_role:
+    - name: Test ansible-role-container-registry
+      include_role:
         name: ansible-role-container-registry
       vars:
         container_registry_deploy_docker: true

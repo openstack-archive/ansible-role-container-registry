@@ -27,7 +27,8 @@
 
     - name: ensure role fails when credentials missing
       block:
-        - include_role:
+        - name: ensure role fails when credentials missing
+          include_role:
             name: ansible-role-container-registry
             tasks_from: registry-login
           vars:
@@ -130,7 +131,8 @@
         localhost:5000:
             testuser: testpassword
   tasks:
-    - include_role:
+    - name: include container registry role
+      include_role:
         name: ansible-role-container-registry
         tasks_from: registry-login
 
@@ -149,7 +151,8 @@
             success_msg: Credential file correctly present
           failed_when: false
       rescue:
-        - debug:
+        - name: rescue
+          debug:
             msg: noop
 
     - name: Verify credentials can be used

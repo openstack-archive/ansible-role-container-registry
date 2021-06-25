@@ -10,7 +10,8 @@
         - container_registry_docker_install is defined
         - container_registry_docker_install is changed
   rescue:
-    - debug:
+    - name: Failed removing docker
+      debug:
         msg: "unable to remove docker"
   become: true
 
