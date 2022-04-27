@@ -183,6 +183,7 @@
           retries: 10
           delay: 5
           until: docker_ready.rc == 0
+          changed_when: false
 
     - name: mark docker configured
       lineinfile:

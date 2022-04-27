@@ -1,14 +1,10 @@
 - project:
     check:
       jobs:
-        - ansible-role-container-registry-centos-7-molecule
         - openstack-tox-linters
-        - tripleo-ci-centos-7-undercloud-containers
     gate:
       jobs:
-        - ansible-role-container-registry-centos-7-molecule
         - openstack-tox-linters
-        - tripleo-ci-centos-7-undercloud-containers
     post:
       jobs:
         - publish-openstack-python-branch-tarball

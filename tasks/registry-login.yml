@@ -19,6 +19,7 @@
          --password "{{ lookup('dict', item.value).value  }}"
       loop: "{{ query('dict', container_registry_logins | default({})) }}"
       register: registry_login_docker
+      changed_when: false
   rescue:
     - name: Failed login
       debug:
