@@ -18,7 +18,6 @@ gcc-c++           [platform:rpm]
 git               [platform:rpm]
 libffi-devel      [platform:rpm]
 openssl-devel     [platform:rpm]
-python-devel      [platform:rpm]
 python2-dnf       [platform:fedora]
 python-virtualenv [platform:rpm]
 
