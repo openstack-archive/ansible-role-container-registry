@@ -1,9 +1,0 @@
----
-
-# tasks file for ansible-role-container-registry
-
-- include_tasks: docker.yml
-  when: container_registry_deploy_docker|bool
-
-- include_tasks: docker-distribution.yml
-  when: container_registry_deploy_docker_distribution|bool

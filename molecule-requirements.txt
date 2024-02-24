@@ -1,9 +1,0 @@
-ansible
-ansi2html
-docker
-pytest
-pytest-cov
-pytest-html
-pytest-xdist
-mock
-molecule>=3.0,<3.1

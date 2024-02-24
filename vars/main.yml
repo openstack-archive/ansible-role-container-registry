@@ -1,1 +1,0 @@
-_full_docker_options: "{% if container_registry_selinux|bool %}--selinux-enabled {% endif %}{% if container_registry_additional_sockets | length > 0 %}-H unix:///run/docker.sock {% for soc in container_registry_additional_sockets %}-H unix://{{ soc }}{% if not loop.last %} {% endif %}{% endfor %}{% endif %} {{ container_registry_docker_options }}"
